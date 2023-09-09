@@ -1,0 +1,159 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Slider</title>
+    <style>
+        body {
+            block-size: 100vh;
+            inline-size: 100vw;
+            background-color: black;
+            margin: 0rem;
+            overflow: hidden;
+        }
+
+        #image-track {
+            display: flex;
+            gap: 4vmin;
+            position: absolute;
+            inset-inline-start: 50%;
+            inset-block-start: 50%;
+            transform: translate(0%, -50%);
+            user-select: none; /* -- Prevent image highlighting -- */
+        }
+
+        #image-track > .image {
+            inline-size: 40vmin;
+            block-size: 56vmin;
+            object-fit: cover;
+            object-position: 100% center;
+        }
+
+        /* -- YouTube Link Styles -- */
+
+        body.menu-toggled > .meta-link > span {
+            color: rgb(30, 30, 30);
+        }
+
+        #source-link {
+            inset-block-end: 60px;
+        }
+
+        #source-link > i {
+            color: rgb(94, 106, 210);
+        }
+
+        #yt-link > i {
+            color: rgb(239, 83, 80);
+        }
+
+        .meta-link {
+            align-items: center;
+            backdrop-filter: blur(3px);
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            inset-block-end: 10px;
+            box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            display: inline-flex;
+            gap: 5px;
+            inset-inline-start: 10px;
+            padding: 10px 20px;
+            position: fixed;
+            text-decoration: none;
+            transition: background-color 400ms, border-color 400ms;
+            z-index: 10000;
+        }
+
+        .meta-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .meta-link > i, .meta-link > span {
+            block-size: 20px;
+            line-height: 20px;
+        }
+
+        .meta-link > span {
+            color: white;
+            font-family: "Rubik", sans-serif;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div id="image-track" data-mouse-down-at="0" data-prev-percentage="0">
+        <img class="image" src="C:\Users\ad\Desktop\fzness\women\7c79dae2-9af4-4838-9fc3-172670a3b8cd.jpg" draggable="false" />
+        <img class="image" src="C:\Users\ad\Desktop\fzness\women\9b8b5c0b-32aa-4caf-8e02-d853ee0abd84.jpg" draggable="false" />
+        <img class="image" src="C:\Users\ad\Desktop\fzness\women\9c0dead0-3946-4a81-9a7e-e49e7efe5243.jpg" draggable="false" />
+        <img class="image" src="C:\Users\ad\Desktop\fzness\women\761efc51-ee14-41ef-ad53-61f761691ddd.jpg" draggable="false" />
+        <img class="image" src="C:\Users\ad\Desktop\fzness\women\818dc8aa-e99a-4354-9054-d7b85b41c400.jpg" draggable="false" />
+        <img class="image" src="C:\Users\ad\Desktop\fzness\women\WhatsApp Image 2023-08-29 at 7.00.30 AM.jpeg" draggable="false" />
+        <img class="image" src="C:\Users\ad\Desktop\fzness\women\7311dd91-b90d-48aa-a2c1-35e803587772.jpg" draggable="false" />
+        <img class="image" src="C:\Users\ad\Desktop\fzness\women\f652243e-388f-4a65-a237-b49b5b530615.jpg" draggable="false" />
+    </div>
+  
+    <a id="source-link" class="meta-link" href="https://wa.me/971556953400" target="_blank">
+        <i class="fa-solid fa-link"></i>
+        <span>To Order  Contact Us on WhatsApp</span>
+    </a>
+
+    <a id="yt-link" class="meta-link" href="file:///C:/Users/ad/Desktop/New%20folder%20(4)/vsc/the%20code/socil%20medai.html" target="_blank">
+        <i class="fa-brands fa-youtube"></i>
+        <span>vist our social media platforms</span>
+    </a>
+
+    <script>
+        const track = document.getElementById("image-track");
+
+        const handleOnDown = e => track.dataset.mouseDownAt = e.clientX;
+
+        const handleOnUp = () => {
+            track.dataset.mouseDownAt = "0";
+            track.dataset.prevPercentage = track.dataset.percentage;
+        }
+
+        const handleOnMove = e => {
+            if (track.dataset.mouseDownAt === "0") return;
+
+            const mouseDelta = parseFloat(track.dataset.mouseDownAt) - e.clientX,
+                maxDelta = window.innerWidth / 2;
+
+            const percentage = (mouseDelta / maxDelta) * -100,
+                nextPercentageUnconstrained = parseFloat(track.dataset.prevPercentage) + percentage,
+                nextPercentage = Math.max(Math.min(nextPercentageUnconstrained, 0), -100);
+
+            track.dataset.percentage = nextPercentage;
+
+            track.animate({
+                transform: `translate(${nextPercentage}%, -50%)`
+            }, { duration: 1200, fill: "forwards" });
+
+            for (const image of track.getElementsByClassName("image")) {
+                image.animate({
+                    objectPosition: `${100 + nextPercentage}% center`
+                }, { duration: 1200, fill: "forwards" });
+            }
+        }
+
+        /* -- Had to add extra lines for touch events -- */
+
+        window.onmousedown = e => handleOnDown(e);
+
+        window.ontouchstart = e => handleOnDown(e.touches[0]);
+
+        window.onmouseup = e => handleOnUp(e);
+
+        window.ontouchend = e => handleOnUp(e.touches[0]);
+
+        window.onmousemove = e => handleOnMove(e);
+
+        window.ontouchmove = e => handleOnMove(e.touches[0]);
+    </script>
+</body>
+</html>
